@@ -85,3 +85,70 @@ def get_tweetlist():
     return list_of_tweets
 
 
+def get_userIDlist():
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                    'version=v4')
+    service = discovery.build('sheets', 'v4', http=http,
+                              discoveryServiceUrl=discoveryUrl)
+
+    spreadsheetId = '1e1p_5v-6YAGViz4rGjrGuJAs25f-AI8Spe6uyiWVhxY'
+    rangeName = "Influential Denier Twitter Handles!B2:B500"
+
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+
+    userIDlist = []
+
+    if not values:
+        print('No data found.')
+    else:
+        for row in values:
+            try:
+                userIDlist.append(row[0])
+            except IndexError:
+                pass
+
+    return userIDlist
+
+
+def get_track_list():
+
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                    'version=v4')
+    service = discovery.build('sheets', 'v4', http=http,
+                              discoveryServiceUrl=discoveryUrl)
+
+    spreadsheetId = '1e1p_5v-6YAGViz4rGjrGuJAs25f-AI8Spe6uyiWVhxY'
+    rangeName = 'Response Repository!A2:C500'
+    result = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=rangeName).execute()
+    values = result.get('values', [])
+
+    term_track_list = []
+
+    if not values:
+        print('No data found.')
+    else:
+        for row in values:
+            for column in row:
+                try:
+                    term_track_list.append(column)
+                except IndexError:
+                    pass
+
+
+    return term_track_list
+
+
+
+
+
+
+
+
+
