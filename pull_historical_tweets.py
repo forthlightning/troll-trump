@@ -24,7 +24,7 @@ def login_user(consumer_key,consumer_secret,access_token,access_token_secret):
     return api
 
 def update_status(api, new_status):
-    api.update_status(status='Test!')
+    api.update_status(status=new_status)
     
 def create_postgres_table(db_name, table_name, col_type_tuples):
     '''
@@ -133,9 +133,9 @@ def run_scraper(api, username, page_start):
     print("Finished Scraper.")
     return None
 
-create_postgres_table("climate_tweets", "republican_tweets", [('id', 'serial primary key'), ('username', 'text'),
-                                                     ('date_created', 'text'), ('favorite', 'int'), 
-                                                     ('retweeted','int'), ("content","text")])
+# create_postgres_table("climate_tweets", "republican_tweets", [('id', 'serial primary key'), ('username', 'text'),
+#                                                      ('date_created', 'text'), ('favorite', 'int'), 
+#                                                      ('retweeted','int'), ("content","text")])
 
 
 chinahoax = credentials['chinahoax']

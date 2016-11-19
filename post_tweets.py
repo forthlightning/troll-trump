@@ -6,6 +6,7 @@ from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+import tweepy
 
 try:
     import argparse
@@ -47,6 +48,10 @@ def get_credentials():
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
+
+
+def update_status(api, new_status):
+    api.update_status(status=new_status)
 
 def get_tweetlist():
     """Shows basic usage of the Sheets API.
@@ -114,8 +119,7 @@ def get_userIDlist():
     return userIDlist
 
 
-def get_track_list():
-
+def get_col_values(tab_name, col):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
@@ -124,33 +128,61 @@ def get_track_list():
                               discoveryServiceUrl=discoveryUrl)
 
     spreadsheetId = '1e1p_5v-6YAGViz4rGjrGuJAs25f-AI8Spe6uyiWVhxY'
-    rangeName = 'Response Repository!A2:C500'
+    rangeName = tab_name+"!"+col+"2:"+col+"500"
+
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
 
-    term_track_list = []
+    userIDlist = []
 
     if not values:
         print('No data found.')
     else:
         for row in values:
-            for column in row:
-                try:
-                    term_track_list.append(column)
-                except IndexError:
-                    pass
+            try:
+                userIDlist.append(row[0])
+            except IndexError:
+                pass
+
+    return userIDlist
+
+def login_user(consumer_key,consumer_secret,access_token,access_token_secret):
+    # page located at https://dev.twitter.com/apps (under "OAuth settings")
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
+    return api
 
 
-    return term_track_list
-
-
-print(get_tweetlist())
 
 
 
+credentials = {"chinahoax": {
+        "consumer_key":"qGukKFrGvJkbbvAdaoJovhW0d",
+        "consumer_secret":"f3q1rdhDlr0dGAyxOmQosJWalkg0YwDNtn7QUQp0fqPxgBYmhv",
+        "access_token":"2902869899-nGULNzeuoNQSmlE5fY7db2vEEUlmGIvjzYhkVXs",
+        "access_token_secret":"2CTfaZrgWIw16YhhNJN34DQebjwamQlGyd0h3IwsK6dQZ"},
+    "chinahoax1":{
+        "consumer_key":"ektj3xDdIxcWsJzhKdG5n062N",
+        "consumer_secret":"K4gbdPlSTfrQHRtGFGo4S8z5JXMUEWhawCS4zPElZFLwnPDtGy",
+        "access_token":"800077289132130304-RFxDYnYCk1LNWkbOBTQ02vgVQoBNdDT",
+        "access_token_secret":"vzWHx7ZvPxPeLOJe9DInqZPoFY42xRFpZyTYHqRaAt39K"},
+    "rushmore":{
+        "consumer_key":"8ilI5mRkw4eIWvklKlErdhFkg",
+        "consumer_secret":"IiJH05LmwrCX1FMX5jk9AlJzUAUX1rrHiiGBeBPosXcgtrgU0N",
+        "access_token":"800076261565435904-G4SfNQJpgAIvwRljf3EVN4p1kWe6bhW",
+        "access_token_secret":"nDNyc8mCfax29udOvrEEoHCPI2tDiSwLvCYzMrBFFMrvt"},
+}
 
+rushmore = credentials['rushmore']
 
+api = login_user(rushmore['consumer_key'],rushmore['consumer_secret'],rushmore['access_token'],rushmore['access_token_secret'])
+print(api)
+twitter_handles = get_col_values(tab_name="Influential Denier Twitter Handles",col="A")
+responses = get_col_values(tab_name="Response Repository",col="E")
+# update_status(api, )
+update_status(api, twitter_handles[0] + " " + responses[1])
 
 
 
