@@ -7,6 +7,8 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 import tweepy
+import time
+import random
 
 try:
     import argparse
@@ -178,12 +180,22 @@ credentials = {"chinahoax": {
 rushmore = credentials['rushmore']
 
 api = login_user(rushmore['consumer_key'],rushmore['consumer_secret'],rushmore['access_token'],rushmore['access_token_secret'])
-print(api)
 twitter_handles = get_col_values(tab_name="Influential Denier Twitter Handles",col="A")
 responses = get_col_values(tab_name="Response Repository",col="E")
 # update_status(api, )
-update_status(api, twitter_handles[0] + " " + responses[1])
+# update_status(api, twitter_handles[0] + " " + responses[1])
 
 
-
+while True:
+    not_tweeted = True
+    tweet = None
+    target_int = random.randint(0, len(twitter_handles))
+    while not_tweeted:
+        content_int = random.randint(0, len(responses))
+        if len(twitter_handles[target_int]+" " +responses[content_int])<=140:
+            not_tweeted = False
+            tweet = twitter_handles[target_int]+" "+responses[content_int]
+    update_status(api, tweet)
+    print(tweet)
+    time.sleep(60*15)
 
